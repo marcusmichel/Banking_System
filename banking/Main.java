@@ -47,6 +47,11 @@ public class Main {
                     System.out.println("Enter your PIN:");
                     String inputPin = userInput.next();
 
+//COMMENT THIS OUT
+                    System.out.println(accounts.get(0).cardNumber);
+                    System.out.println(accounts.get(0).pin);
+
+
                     boolean rightAccount = false;
 
                     Account inputAccount = new Account(inputNum, inputPin);

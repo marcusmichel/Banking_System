@@ -20,11 +20,36 @@ public class Account {
 
     void setAccountNumber() {
         String accNumber = "";
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 9; i++) {
             accNumber = accNumber + String.valueOf(r.nextInt(10));
         }
 
         cardNumber = iin + accNumber;
+
+        int[] luhnArray = new int[cardNumber.length()];
+        int sum = 0;
+
+        for (int i = 0; i < cardNumber.length(); i++) {
+            if (i % 2 == 0) {
+                luhnArray[i] = Character.getNumericValue(cardNumber.charAt(i)) * 2;
+            } else {
+                luhnArray[i] = Character.getNumericValue(cardNumber.charAt(i));
+            }
+            if (luhnArray[i] > 9) {
+                luhnArray[i] -= 9;
+            }
+            sum += luhnArray[i];
+        }
+
+        int checkSum = 0;
+        for (checkSum = 0; checkSum <= 9; checkSum++) {
+            if ((sum + checkSum) % 10 == 0) {
+                System.out.println(sum + checkSum);
+                break;
+            }
+        }
+        
+        cardNumber = cardNumber + Integer.toString(checkSum);
     }
     void setPin() {
 
@@ -46,4 +71,5 @@ public class Account {
         }
         return false;
     }
+
 }
