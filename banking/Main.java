@@ -1,7 +1,11 @@
 package banking;
+import org.sqlite.SQLiteDataSource;
+import java.sql.*;
+
 import java.util.Scanner;
 import java.util.Random;
 import java.util.ArrayList;
+
 
 public class Main {
 
@@ -12,14 +16,55 @@ public class Main {
     static int numOfAccounts = 0;
 
     public static void main(String[] args) {
-        menu();
-        System.out.println("Bye!");
+
+        AccountDB ops = new AccountDB(args[1]);
+
+        /*
+        String url = "jdbc:sqlite:/Users/marcus/IdeaProjects/" +
+                "Simple Banking System/Simple Banking System/task/src/banking/" + args[1];
+
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl(url);
+
+        try (java.sql.Connection con = dataSource.getConnection()) {
+            // Statement creation
+            try (Statement statement = con.createStatement()) {
+                // Statement execution
+                statement.executeUpdate("CREATE TABLE card (" +
+                        "id INTEGER," +
+                        "number TEXT," +
+                        "pin TEXT," +
+                        "balance INTEGER DEFAULT 0);");
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            */
+//            try (Statement statement = con.createStatement()) {
+//                statement.executeUpdate("INSERT INTO card (" +
+//                        "id INTEGER," +
+//                        "number TEXT," +
+//                        "pin TEXT," +
+//                        "balance INTEGER DEFAULT 0) " +
+//                        "VALUES (id, number, pin, balance);");
+//            }
+//            catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+       /* } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        */
+//This didn't used to have a string argument
+        menu(ops);
     }
 
-    static void menu() {
+    //This didn't used to have an AccountDB argument
+    static void menu(AccountDB ops) {
         String menu = "1. Create an account\n" +
                 "2. Log into account\n" +
                 "0. Exit\n";
+        Account user = null;
 
         while (!exit) {
 
@@ -27,6 +72,31 @@ public class Main {
 
             switch(userInput.nextInt()) {
                 case 1:
+
+                    //start account creation
+                    /*user = new Account();
+                    ops.insertData(user.getCardNumber(), user.getPinNumber());
+                    System.out.println("Your card has been created");
+                    user.accountInformation();*/
+
+                    user = new Account();
+                    if (!ops.containsRecord(user.getCardNumber(), user.getPinNumber())) {
+                        ops.insertData(user.getCardNumber(), user.getPinNumber());
+                        System.out.println("Your card has been created");
+                        user.accountInformation();
+                    } else {
+                        user = new Account();
+                        ops.insertData(user.getCardNumber(), user.getPinNumber());
+                        System.out.println("Your card has been created");
+                        user.accountInformation();
+                    }
+
+                    // Helps me make sure my database table is updating
+                    ops.displayTable();
+
+                    //end account creation
+
+                    /* //Previous method of creating a new account
                     accounts.add(new Account());
                     numOfAccounts++;
                     System.out.println("Your card has been created");
@@ -38,8 +108,34 @@ public class Main {
                     accounts.get(numOfAccounts - 1).setPin();
                     System.out.println(accounts.get(numOfAccounts - 1).pin);
                     System.out.println();
+                    */
 
+                    /* initial attempt at setting up a database
+                    SQLiteDataSource dataSource = new SQLiteDataSource();
+                    dataSource.setUrl(url);
+
+                    try (java.sql.Connection con = dataSource.getConnection()) {
+                        // Statement creation
+
+                        try (Statement statement = con.createStatement()) {
+                            statement.executeUpdate("INSERT INTO card (" +
+                                    "id INTEGER," +
+                                    "number TEXT," +
+                                    "pin TEXT," +
+                                    "balance INTEGER DEFAULT 0) " +
+                                    "VALUES (" + Integer.toString(1) + ", " +
+                                    accounts.get(numOfAccounts - 1).cardNumber + ", " +
+                                    accounts.get(numOfAccounts - 1).pin + ", " +
+                                    "0);");
+                        }
+                        catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } */
                     break;
+
                 case 2:
                     System.out.println("Enter your card number:");
                     String inputNum = userInput.next();
@@ -47,11 +143,17 @@ public class Main {
                     System.out.println("Enter your PIN:");
                     String inputPin = userInput.next();
 
-//COMMENT THIS OUT
-                    System.out.println(accounts.get(0).cardNumber);
-                    System.out.println(accounts.get(0).pin);
+                    if (ops.containsRecord(inputNum, inputPin)) {
 
+                        System.out.println("You have successfully logged in!");
 
+                        loggedInMenu();
+
+                    } else {
+                        System.out.println("Wrong card number or PIN!");
+                    }
+                    //end login dialog
+                    /* //Previous method of checking card and pin number
                     boolean rightAccount = false;
 
                     Account inputAccount = new Account(inputNum, inputPin);
@@ -67,6 +169,8 @@ public class Main {
                     } else {
                         System.out.println("Wrong card number or PIN!");
                     }
+
+                     */
                     break;
 
                 case 0:
@@ -76,6 +180,9 @@ public class Main {
                     System.out.println("Invalid input");
             }
         }
+        userInput.close();
+
+        System.out.println("Bye!");
     }
     static void loggedInMenu() {
         String menu = "1. Balance\n" +

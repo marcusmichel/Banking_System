@@ -14,8 +14,23 @@ public class Account {
         pin = pinNum;
     }
     public Account() {
-        cardNumber = null;
-        pin = null;
+        setAccountNumber();
+        setPin();
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public String getPinNumber() {
+        return pin;
+    }
+
+    public void accountInformation() {
+        System.out.println("Your card number:");
+        System.out.println(getCardNumber());
+        System.out.println("Your card PIN:");
+        System.out.println(getPinNumber());
     }
 
     void setAccountNumber() {
