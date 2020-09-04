@@ -82,7 +82,7 @@ public class Main {
 
                         System.out.println("You have successfully logged in!");
 
-                        loggedInMenu();
+                        loggedInMenu(inputNum, inputPin, ops);
 
                     } else {
                         System.out.println("Wrong card number or PIN!");
@@ -119,21 +119,57 @@ public class Main {
 
         System.out.println("Bye!");
     }
-    static void loggedInMenu() {
+
+    static void loggedInMenu(String inputNum, String inputPin, AccountDB ops) {
         String menu = "1. Balance\n" +
-                "2. Log out\n" +
+                "2. Add income\n" +
+                "3. Do transfer\n" +
+                "4. Close account\n" +
+                "5. Log out\n" +
                 "0. Exit\n";
 
-        System.out.println(menu);
         boolean loggedOut = false;
 
         while (!loggedOut) {
+            System.out.println(menu);
             switch (userInput.nextInt()) {
                 case 1:
-                    System.out.println("Balance: " + balance + "\n");
+//                    System.out.println("Balance: " + balance + "\n");
+                    ops.printBalance(inputNum, inputPin);
                     System.out.println(menu);
                     break;
                 case 2:
+                    System.out.println("Enter income:");
+                    int deposit = userInput.nextInt();
+                    ops.depositMoney(inputNum, inputPin, deposit);
+                    System.out.println("Income was added!");
+                    break;
+                case 3:
+                    System.out.println("Enter card number:");
+                    int cardNumber = userInput.nextInt();
+                    if (cardNumber == Integer.parseInt(inputNum)) {
+                        System.out.println("You can't transfer money to the same account!");
+                    } else if (!luhnCheck(cardNumber)) {
+                        System.out.println("Probably you made mistake " +
+                                "in the card number.\n" +
+                                "Please try again!");
+                    } else if (!ops.containsRecord(inputNum, inputPin)) {
+                        System.out.println("Such a card does not exist");
+                    } else {
+                        System.out.println("Enter how much money you want to transfer:");
+                        int transferAmount = userInput.nextInt();
+                        if (ops.checkMoney(inputNum, inputPin, transferAmount)) {
+                            ops.transferMoney(inputNum, inputPin, transferAmount, Integer.toString(cardNumber));
+                            System.out.println("Success!");
+                        } else {
+                            System.out.println("Not enough money!");
+                        }
+                    }
+                    break;
+                case 4:
+                    ops.closeAccount(inputNum);
+                    break;
+                case 5:
                     loggedOut = true;
                     System.out.println("You have successfully logged out!");
                     break;
@@ -146,5 +182,34 @@ public class Main {
                     break;
             }
         }
+    }
+
+    static boolean luhnCheck(int cardNumber) {
+        String number = String.valueOf(cardNumber);
+        int[] luhnArray = new int[number.length()];
+        int sum = 0;
+
+        for(int i = 0; i < number.length(); i++) {
+            luhnArray[i] = Character.digit(number.charAt(i), 10);
+        }
+
+        for (int i = 0; i < number.length(); i++) {
+            if (i % 2 == 0) {
+                luhnArray[i] = Character.getNumericValue(number.charAt(i)) * 2;
+            } else {
+                luhnArray[i] = Character.getNumericValue(number.charAt(i));
+            }
+            if (luhnArray[i] > 9) {
+                luhnArray[i] -= 9;
+            }
+            sum += luhnArray[i];
+        }
+        sum += luhnArray[luhnArray.length - 1];
+
+        if (sum % 10 == 0) {
+            return true;
+        }
+        return false;
+
     }
 }

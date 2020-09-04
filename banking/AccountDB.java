@@ -119,7 +119,80 @@ public class AccountDB {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
 
+    public boolean checkMoney(String num, String pin, int transfer) {
+        String checkSQL = "SELECT balance FROM card WHERE number = ? and pin = ? and balance >= transfer";
+        try (Connection conn = this.connect();
+             PreparedStatement prep = conn.prepareStatement(checkSQL)) {
+            prep.setString(1, num);
+            prep.setString(2, pin);
+            prep.setString(3, String.valueOf(transfer));
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+            return false;
+        } catch(SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return false;
+    }
+
+    public void depositMoney(String num, String pin, int deposit) {
+        String depositSQL = "UPDATE card SET balance = balance + ? WHERE number = ? AND pin = ?";
+        try (Connection conn = this.connect();
+            PreparedStatement prep = conn.prepareStatement(depositSQL)) {
+            prep.setString(1, String.valueOf(deposit));
+            prep.setString(2, num);
+            prep.setString(3, pin);
+            prep.executeUpdate();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+    public void depositMoney(String num, int deposit) {
+        String depositSQL = "UPDATE card SET balance = balance + ? WHERE number = ? ";
+        try (Connection conn = this.connect();
+             PreparedStatement prep = conn.prepareStatement(depositSQL)) {
+            prep.setString(1, String.valueOf(deposit));
+            prep.setString(2, num);
+            prep.executeUpdate();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void transferMoney(String num, String pin, int transferAmount, String transferNum) {
+
+        depositMoney(transferNum, transferAmount);
+        String checkSQL = "UPDATE card SET balance = balance - ? WHERE number = ? AND pin = ?";
+        try (Connection conn = this.connect();
+             PreparedStatement prep = conn.prepareStatement(checkSQL)) {
+            prep.setString(1, Integer.toString(transferAmount));
+            prep.setString(2, num);
+            prep.setString(3, pin);
+            //Use executeUpdate() with INSERT, UPDATE, or DELETE
+            //Use executeQuery() for SELECT --> returns ResultSet
+            prep.executeUpdate();
+        } catch( SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void closeAccount(String num) {
+        String closeSQL = "DELETE FROM card WHERE number = ?";
+        displayTable();
+        try (Connection conn = this.connect();
+             PreparedStatement prep = conn.prepareStatement(closeSQL)) {
+            prep.setString(1, num);
+            prep.executeUpdate();
+            System.out.println("The account has been closed!");
+        } catch (SQLException throwables) {
+            System.out.println(throwables.getMessage());
+            System.out.println("There was an issue");
+            displayTable();
+        }
     }
 
     public void displayTable() {

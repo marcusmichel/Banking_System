@@ -8,6 +8,7 @@ public class Account {
     String iin = "400000";
     String cardNumber;
     String pin;
+    int balance;
 
     public Account(String cardNum, String pinNum) {
         cardNumber = cardNum;
@@ -76,6 +77,10 @@ public class Account {
                 pin = "0" + pin;
             }
         }
+    }
+
+    void deposit(int deposit) {
+        this.balance = balance + deposit;
     }
 
     boolean equals(Account account) {
