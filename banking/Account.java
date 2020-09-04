@@ -4,6 +4,8 @@ import java.util.Random;
 
 public class Account {
 
+    //After integrating a database, this class is no longer used in main.
+    // I'm keeping it, for now, as I could potentially integrate it into the database.
     Random r = new Random();
     String iin = "400000";
     String cardNumber;
